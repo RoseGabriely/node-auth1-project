@@ -1,7 +1,7 @@
 const Users = require("../users/users-model");
 
 function restricted(req, res, next) {
-  if (req.session) {
+  if (req.session.user) {
     next();
   } else {
     next({ status: 401, message: "You shall not pass!" });
@@ -23,7 +23,8 @@ function checkUsernameFree(req, res, next) {
 function checkUsernameExists(req, res, next) {
   Users.findBy({ username: req.body.username })
     .then((user) => {
-      if (!user.length) {
+      if (user.length) {
+        req.user = user[0];
         next();
       } else {
         next({ status: 401, message: "Invalid credentials" });
